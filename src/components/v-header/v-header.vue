@@ -49,10 +49,11 @@
       showDetail() {
         this.headerDetailComp = this.headerDetailComp || this.$createHeaderDetail({
           $props: {
-            seller: 'seller'
+            seller: 'seller' // 这里传给header-detail的seller是响应式的。create-api文档也有写
           }
-        })
-        this.headerDetailComp.show()
+        }) // 目前只是创建了headerDetailComp这个header-detail组件的 实例 ,我们要把它show出来，所以要去header-detail写v-show一些的
+        // show方法，然后实例可以调用对应组件的show()方法。
+        this.headerDetailComp.show() // 组件实例可以对应调用组件方法。
       }
     },
     components: {
