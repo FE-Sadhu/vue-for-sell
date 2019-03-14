@@ -20,14 +20,8 @@
         :options="slideOptions"
         ref="slide"
       ><!--这些传的参数代表的意义文档都有，翻阅即可。 change事件在slide页面切换时触发并且会派送当前页面索引 这里scroll事件其实就是bs里的scroll事件，在页面滑动时触发，需要配置options-->
-        <cube-slide-item>
-          <goods></goods>
-        </cube-slide-item>
-        <cube-slide-item>
-          <ratings></ratings>
-        </cube-slide-item>
-        <cube-slide-item>
-          <seller></seller>
+        <cube-slide-item v-for="(tab, index) in tabs" :key="index">
+          <component :is="tab.component" :data="tab.data"></component>
         </cube-slide-item>
       </cube-slide>
     </div>
@@ -35,22 +29,23 @@
 </template>
 
 <script>
-import Goods from 'components/goods/goods'
-import Ratings from 'components/ratings/ratings'
-import Seller from 'components/seller/seller'
-
 export default {
   name: 'tab',
+  props: {
+    tabs: {
+      type: Array,
+      default() {
+        return {}
+      }
+    },
+    initialIndex: {
+      type: Number,
+      default: 0
+    }
+  },
   data() {
     return {
-      index: 0,
-      tabs: [{
-        label: '商品'
-      }, {
-        label: '评价'
-      }, {
-        label: '商家'
-      }],
+      index: this.initialIndex,
       slideOptions: {
         listenScroll: true,
         probeType: 3, // 当 probeType 为 2 的时候，会在屏幕滑动的过程中实时的派发 scroll 事件，具体参见better-scroll文档
@@ -85,11 +80,6 @@ export default {
       const transform = (-pos.x) / slideWidth * tabBarWidth // 计算出下划线该移动的距离
       this.$refs.tabBar.setSliderTransform(transform) // 利用cube-tab-bar的组件实例方法setSliderTransform可控制组件下划线（文档有）
     }
-  },
-  components: {
-    Goods,
-    Ratings,
-    Seller
   }
 }
 </script>
