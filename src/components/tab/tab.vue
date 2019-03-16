@@ -21,7 +21,7 @@
         ref="slide"
       ><!--这些传的参数代表的意义文档都有，翻阅即可。 change事件在slide页面切换时触发并且会派送当前页面索引 这里scroll事件其实就是bs里的scroll事件，在页面滑动时触发，需要配置options-->
         <cube-slide-item v-for="(tab, index) in tabs" :key="index">
-          <component :is="tab.component" :data="tab.data"></component>
+          <component :is="tab.component" :data="tab.data" ref="component"></component>
         </cube-slide-item>
       </cube-slide>
     </div>
@@ -35,7 +35,7 @@ export default {
     tabs: {
       type: Array,
       default() {
-        return {}
+        return []
       }
     },
     initialIndex: {
@@ -68,9 +68,14 @@ export default {
       }
     }
   },
+  mounted() {
+    this.onChange(this.index) // 刚进页面的时候还调用不了fetch方法，因为onChange只有在切换的时候才触发。所以这里要手动调用一次。
+  },
   methods: {
     onChange(current) { // current就是change事件派发的索引，change事件在页面切换后的一瞬间派发的。
       this.index = current // 这样就实现了slide和tabBar联动,但是不完美。
+      const component = this.$refs.component[current] // 意思是现在切换到动态组件的第几个组件实例了
+      component.fetch && component.fetch() // 组件实例调用方法。
     },
     onScroll(pos) {
       // console.log(pos.x)
