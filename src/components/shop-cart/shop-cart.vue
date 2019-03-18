@@ -9,7 +9,9 @@
                 :class="{'highlight': totalCount>0}"
               ></i>
             </div>
-            <div class="num" v-show="totalCount>0"></div>
+            <div class="num" v-show="totalCount>0">
+              <bubble :num="totalCount"></bubble>
+            </div>
           </div>
           <div class="price" :class="{'hightlight': totalPrice>0}">¥{{totalPrice}}</div>
           <div class="desc">另需配送费¥{{deliveryPrice}}元</div>
@@ -25,6 +27,8 @@
 </template>
 
 <script>
+import Bubble from 'components/bubble/bubble'
+
 export default {
   name: 'shop-cart',
   props: {
@@ -75,6 +79,9 @@ export default {
         return 'enough'
       }
     }
+  },
+  components: {
+    Bubble
   }
 }
 </script>
