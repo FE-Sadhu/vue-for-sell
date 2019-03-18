@@ -34,7 +34,7 @@
                   <span class="old" v-show="food.oldPrice">¥{{food.oldPrice}}</span>
                 </div>
                 <div class="cart-control-wrapper">
-                  <cart-control :food="food"></cart-control>
+                  <cart-control @add="onAdd" :food="food"></cart-control>
                 </div>
               </div>
             </li>
@@ -44,6 +44,7 @@
     </div>
     <div class="shop-cart-wrapper">
       <shop-cart
+        ref="shopCart"
         :select-foods="selectFoods"
         :delivery-price="seller.deliveryPrice"
         :min-price="seller.minPrice"
@@ -97,7 +98,10 @@ export default {
       getGoods().then((goods) => {
         this.goods = goods
       })
-    } // 封装一个fetch方法，在tab.vue里调用组件实例调用方法，使之切换tab页面时才获取数据
+    }, // 封装一个fetch方法，在tab.vue里调用组件实例调用方法，使之切换tab页面时才获取数据
+    onAdd(el) {
+      this.$refs.shopCart.drop(el)
+    }
   },
   components: {
     ShopCart,

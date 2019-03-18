@@ -11,6 +11,8 @@
 </template>
 
 <script>
+const EVENT_ADD = 'add'
+
 export default {
   name: 'cart-control',
   props: {
@@ -19,13 +21,13 @@ export default {
     }
   },
   methods: {
-    add() {
+    add(event) {
       if (!this.food.count) {
         this.$set(this.food, 'count', 1)
       } else {
         this.food.count++
       }
-      console.log(this.food.count)
+      this.$emit(EVENT_ADD, event.target) // 学习了。通过点击事件拿到DOM，就应该这样。传入event参数，event.target就是拿到了该DOM
     },
     decrease() {
       if (this.food.count) {

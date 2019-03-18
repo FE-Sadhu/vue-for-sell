@@ -22,12 +22,38 @@
           </div>
         </div>
       </div>
+      <div class="ball-container">
+        <div v-for="(ball, index) in balls" :key="index">
+          <transition
+            @before-enter="beforeDrop"
+            @enter="dropping"
+            @after-enter="afterDrop"
+          >
+            <div class="ball" v-show="ball.show">
+              <div class="inner inner-hook"></div>
+            </div>
+          </transition>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import Bubble from 'components/bubble/bubble'
+
+const BALL_LEN = 10
+const innerClsHook = 'inner-hook'
+
+function createBalls() {
+  let balls = []
+  for (let i = 0; i < BALL_LEN; i++) {
+    balls.push({
+      show: false
+    })
+  }
+  return balls
+} // 返回十个小球，每个小球一开始都是show:false
 
 export default {
   name: 'shop-cart',
@@ -45,6 +71,11 @@ export default {
     minPrice: {
       type: Number,
       default: 0
+    }
+  },
+  data() {
+    return {
+      balls: createBalls() // 定义隐藏的小球
     }
   },
   computed: {
@@ -77,6 +108,46 @@ export default {
         return 'not-enough'
       } else {
         return 'enough'
+      }
+    }
+  },
+  created() {
+    this.dropBalls = [] // 定义一个下落的小球的数组 不放data里面是不需要响应式的。平时保留就好了
+  },
+  methods: {
+    drop(el) { // 这个el就是加号那个DOM
+      for (let i = 0; i < this.balls.length; i++) {
+        const ball = this.balls[i]
+        if (!ball.show) {
+          ball.show = true
+          ball.el = el
+          this.dropBalls.push(ball)
+          return
+        }
+      }
+    },
+    beforeDrop(el) {
+      const ball = this.dropBalls[this.dropBalls.length - 1] // 下落小球数组中最后一个就是最新点击的
+      const rect = ball.el.getBoundingClientRect() // 取得此时点击按钮的位置信息。这个el是点击小球的dom(参见drop())
+      const x = rect.left - 32 // rect.left是点击的加号到左边屏幕的x轴距离，32是购物车到左边屏幕的x轴距离
+      const y = -(window.innerHeight - rect.top - 22) // 整体高度window.innerHeight - 两个y距离得到中间距离. 为什么是负值是因为是小球是从购物车到达目标加号
+      el.style.display = ''
+      el.style.transform = el.style.webkitTransform = `translate3d(0, ${y}px, 0)` // 外层y轴移动
+      const inner = el.getElementsByClassName(innerClsHook)[0]
+      inner.style.transform = inner.style.webkitTransform = `translate3d(${x}px, 0, 0)` // 内层x轴移动
+    },
+    dropping(el, done) {
+      this._reflow = document.body.offsetHeight // 浏览器重绘
+      el.style.transform = el.style.webkitTransform = `translate3d(0, 0, 0)`
+      const inner = el.getElementsByClassName(innerClsHook)[0]
+      inner.style.transform = inner.style.webkitTransform = `translate3d(0, 0, 0)`
+      el.addEventListener('transitionend', done) // 动画执行完成，去执行afterDrop函数
+    },
+    afterDrop(el) {
+      const ball = this.dropBalls.shift()
+      if (ball) {
+        ball.show = false
+        el.style.display = 'none'
       }
     }
   },
@@ -167,7 +238,7 @@ export default {
         left: 32px
         bottom: 22px
         z-index: 200
-        transition: all 0.4s cubic-bezier(0.49, -0.29, 0.75, 0.41)
+        transition: all 0.4s cubic-bezier(0.49, -0.29, 0.75, 0.41) // 贝加尔曲线
         .inner
           width: 16px
           height: 16px
