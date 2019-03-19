@@ -7,6 +7,27 @@
         :options="scrollOptions"
         v-if="goods.length"
       >
+        <template slot="bar" slot-scope="props">
+          <cube-scroll-nav-bar
+            direction="vertical"
+            :labels="props.labels"
+            :txts="barTxts"
+            :current="props.current"
+          ><!--给txts参数自定义个值（对象）barTxts，因为我们要改侧边栏的值(在其插槽里改)，默认的话就和原始的没区别了 -->
+            <template slot-scope="props">
+              <div class="text">
+                <support-ico v-if="props.txt.type>=1"
+                  :size=3
+                  :type="props.txt.type"
+                ></support-ico> <!--这里的props.txt就是barTxts的其中一项了。见文档 -->
+                <span>{{props.txt.name}}</span>
+                <span class="num" v-if="props.txt.count">
+                  <bubble :num="props.txt.count"></bubble>
+                </span>
+              </div>
+            </template>
+          </cube-scroll-nav-bar>
+        </template>
         <cube-scroll-nav-panel
           v-for="good in goods"
           :key="good.name"
@@ -57,6 +78,8 @@
 import { getGoods } from 'api'
 import ShopCart from 'components/shop-cart/shop-cart'
 import CartControl from 'components/cart-control/cart-control'
+import SupportIco from 'components/support-ico/support-ico'
+import Bubble from 'components/bubble/bubble'
 
 export default {
   name: 'goods',
@@ -91,6 +114,22 @@ export default {
         })
       })
       return ret
+    },
+    barTxts() { // 手动构造一个插槽里cube-scroll-nav-bar :txts的值，因为我们要为侧边栏的值改东西。因为手动构造了这个值，所以要再用cube-scroll-nav-bar的插槽去改了。
+      let ret = []
+      this.goods.forEach((good) => {
+        const { type, name, foods } = good
+        let count = 0
+        foods.forEach((food) => {
+          count += food.count || 0 // food默认是没有count属性的 一开始是undefined 所以 或一个0
+        })
+        ret.push({
+          type,
+          name,
+          count
+        })
+      })
+      return ret
     }
   },
   methods: {
@@ -105,7 +144,9 @@ export default {
   },
   components: {
     ShopCart,
-    CartControl
+    CartControl,
+    SupportIco,
+    Bubble
   }
 }
 </script>

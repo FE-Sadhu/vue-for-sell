@@ -26,7 +26,7 @@ module.exports = {
     }
   },
   devServer: {
-    before (app) {
+    before (app) { // app是一个express实例
       app.get('/api/seller', function (req, res) {
         res.json({
           errno: 0,
