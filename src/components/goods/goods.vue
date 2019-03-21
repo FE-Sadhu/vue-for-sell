@@ -134,9 +134,12 @@ export default {
   },
   methods: {
     fetch() {
-      getGoods().then((goods) => {
-        this.goods = goods
-      })
+      if (!this.fetched) { // this.fetched标志位的意义是让goods组件请求过一次数据初始化后，之后不用再请求数据来初始化，也就是会让再次切换回goods页面时数据的操作和修改是不变的。效果是等于keep-alive
+        this.fetched = true
+        getGoods().then((goods) => {
+          this.goods = goods
+        })
+      }
     }, // 封装一个fetch方法，在tab.vue里调用组件实例调用方法，使之切换tab页面时才获取数据
     onAdd(el) {
       this.$refs.shopCart.drop(el)

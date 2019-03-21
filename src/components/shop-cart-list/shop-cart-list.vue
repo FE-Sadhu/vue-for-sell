@@ -42,13 +42,15 @@
 
 <script>
 import CartControl from 'components/cart-control/cart-control'
+import popupMixin from 'common/mixins/popup'
 
-const EVENT_HIDE = 'hide'
 const EVENT_LEAVE = 'leave'
 const EVENT_ADD = 'add'
+const EVENT_SHOW = 'show'
 
 export default {
   name: 'shop-cart-list',
+  mixins: [popupMixin],
   props: {
     selectFoods: {
       type: Array,
@@ -57,22 +59,14 @@ export default {
       }
     }
   },
-  data() {
-    return {
-      visible: false
-    }
-  },
-  methods: {
-    show() {
-      this.visible = true
+  created() {
+    this.$on(EVENT_SHOW, () => {
       this.$nextTick(() => {
         this.$refs.listContent.refresh() // 当列表DOM show出来的时候要重新计算一下高度
       })
-    },
-    hide() {
-      this.visible = false
-      this.$emit(EVENT_HIDE)
-    },
+    }) // mixins里的show对这里不完整，可以通过此处的$on来监听show事件从而加上该组件show()中mixins没有的操作
+  },
+  methods: {
     maskClick() {
       this.hide()
     },
