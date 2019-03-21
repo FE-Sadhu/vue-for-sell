@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="shopcart">
-      <div class="content">
+      <div class="content" @click="toggleList">
         <div class="content-left">
           <div class="logo-wrapper">
             <div class="logo" :class="{'highlight': totalCount>0}">
@@ -17,7 +17,7 @@
           <div class="desc">另需配送费¥{{deliveryPrice}}元</div>
         </div>
         <div class="content-right">
-          <div class="pay" :class="payClass">
+          <div @click="pay" class="pay" :class="payClass"> <!-- 这里click加stop是防止冒泡影响到外层click事件 也可以不用stop，我们在click事件内部使用event.stopPropagation-->
             {{payDesc}}
           </div>
         </div>
@@ -71,11 +71,20 @@ export default {
     minPrice: {
       type: Number,
       default: 0
+    },
+    fold: {
+      type: Boolean,
+      default: true
+    },
+    sticky: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
     return {
-      balls: createBalls() // 定义隐藏的小球
+      balls: createBalls(), // 定义隐藏的小球
+      listFold: this.fold // 设置一个标志位，默认控制list收起的。 listFold只有在data()中被this.fold初始化一次赋值后，之后的值与this.fold再无关联。这里的this.fold仅仅只是一个值。为了让他俩一直有关联，需要watch fold的变化（为了给sticky组件）
     }
   },
   computed: {
@@ -112,7 +121,8 @@ export default {
     }
   },
   created() {
-    this.dropBalls = [] // 定义一个下落的小球的数组 不放data里面是不需要响应式的。平时保留就好了
+    this.dropBalls = [] // 定义一个放正在下落的小球的数组 不放data里面是不需要响应式的。平时保留就好了
+    // this.listFold = true // 设置一个标志位，默认控制list收起的
   },
   methods: {
     drop(el) { // 这个el就是加号那个DOM
@@ -128,7 +138,7 @@ export default {
     },
     beforeDrop(el) {
       const ball = this.dropBalls[this.dropBalls.length - 1] // 下落小球数组中最后一个就是最新点击的
-      const rect = ball.el.getBoundingClientRect() // 取得此时点击按钮的位置信息。这个el是点击小球的dom(参见drop())
+      const rect = ball.el.getBoundingClientRect() // 取得此时点击按钮的位置信息。这个el是+号的dom(参见drop())
       const x = rect.left - 32 // rect.left是点击的加号到左边屏幕的x轴距离，32是购物车到左边屏幕的x轴距离
       const y = -(window.innerHeight - rect.top - 22) // 整体高度window.innerHeight - 两个y距离得到中间距离. 为什么是负值是因为是小球是从购物车到达目标加号
       el.style.display = ''
@@ -148,6 +158,79 @@ export default {
       if (ball) {
         ball.show = false
         el.style.display = 'none'
+      }
+    },
+    pay(e) {
+      if (this.totalPrice < this.minPrice) {
+        return
+      }
+      this.dialogComp = this.$createDialog({
+        type: 'alert',
+        title: '支付',
+        content: `您需要支付共${this.totalPrice}元`
+      })
+      this.dialogComp.show()
+      e.stopPropagation() // 在click事件中，就不会触发上层(祖先)click事件。这是在click事件内部的阻止事件冒泡方法。
+    },
+    toggleList() {
+      if (this.listFold) {
+        if (!this.totalCount) {
+          return
+        }
+        this.listFold = false
+        this._showShopCartList()
+        this._showShopCartSticky()
+      } else {
+        this.listFold = true
+        this._hideShopCartList()
+      }
+    },
+    _showShopCartList() {
+      this.shopCartListComp = this.shopCartListComp || this.$createShopCartList({
+        $props: {
+          selectFoods: 'selectFoods'
+        },
+        $events: { // api组件的监听事件方式
+          hide: () => {
+            this.listFold = true // 使得点击蒙层关闭弹出层后，再次点击shop-cart区域也能一次就点开弹出层
+          },
+          leave: () => {
+            this._hideShopCartSticky() // -list组件hide()之后动画才会瞬间结束，此时销毁掉sticky组件
+          },
+          add: (el) => {
+            this.shopCartStickyComp.drop(el)
+          }
+        }
+      })
+      this.shopCartListComp.show()
+    },
+    _showShopCartSticky() {
+      this.shopCartStickyComp = this.shopCartStickyComp || this.$createShopCartSticky({
+        $props: {
+          selectFoods: 'selectFoods',
+          deliveryPrice: 'deliveryPrice',
+          minPrice: 'minPrice',
+          fold: 'listFold', // 这个listFold需要跟this.fold做关联
+          list: this.shopCartListComp
+        }
+      })
+      this.shopCartStickyComp.show()
+    },
+    _hideShopCartList() {
+      const comp = this.sticky ? this.$parent.list : this.shopCartListComp // this.$parent是调用当前组件的父组件
+      comp.hide && comp.hide()
+    },
+    _hideShopCartSticky() {
+      this.shopCartStickyComp.hide()
+    }
+  },
+  watch: { // watch fold 是为了给  sticky 组件,因为 fold 是 prop，但是在 toggleList 函数中判断的是 listFold,你每次改变的  sticky 组件的 fold prop 的时候，也要去更新  sticky 的 listFold 值，这就通过 watch 实现的。
+    fold(newVal) {
+      this.listFold = newVal
+    },
+    totalCount(newVal) {
+      if (!this.listFold && !newVal) {
+        this._hideShopCartList()
       }
     }
   },
