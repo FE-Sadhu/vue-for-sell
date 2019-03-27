@@ -36,6 +36,7 @@
         >
           <ul>
             <li
+              @click="selectFood(food)"
               v-for="food in good.foods"
               :key="food.name"
               class="food-item"
@@ -97,7 +98,8 @@ export default {
       scrollOptions: {
         click: false, // 避免BS中点击两次(内层bs点击事件会冒泡到外层)
         directionLockThreshold: 0
-      }
+      },
+      selectedFood: {}
     }
   },
   computed: {
@@ -133,6 +135,11 @@ export default {
     }
   },
   methods: {
+    selectFood(food) {
+      this.selectedFood = food
+      this._showFood()
+      this._showShopCartSticky()
+    },
     fetch() {
       if (!this.fetched) { // this.fetched标志位的意义是让goods组件请求过一次数据初始化后，之后不用再请求数据来初始化，也就是会让再次切换回goods页面时数据的操作和修改是不变的。效果是等于keep-alive
         this.fetched = true
@@ -143,6 +150,36 @@ export default {
     }, // 封装一个fetch方法，在tab.vue里调用组件实例调用方法，使之切换tab页面时才获取数据
     onAdd(el) {
       this.$refs.shopCart.drop(el)
+    },
+    _showFood() {
+      this.foodComp = this.foodComp || this.$createFood({
+        $props: {
+          food: 'selectedFood'
+        },
+        $events: {
+          leave: () => {
+            this._hideShopCartList()
+          },
+          add: (el) => {
+            this.shopCartStickyComp.drop(el)
+          }
+        }
+      })
+      this.foodComp.show()
+    },
+    _showShopCartSticky() {
+      this.shopCartStickyComp = this.shopCartStickyComp || this.$createShopCartSticky({
+        $props: {
+          selectFoods: 'selectFoods',
+          deliveryPrice: this.seller.deliveryPrice,
+          minPrice: this.seller.minPrice,
+          fold: true
+        }
+      })
+      this.shopCartStickyComp.show()
+    },
+    _hideShopCartList() {
+      this.shopCartStickyComp.hide()
     }
   },
   components: {

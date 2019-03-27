@@ -4,7 +4,9 @@ import Vue from 'vue'
 import HeaderDeatil from 'components/header-detail/header-detail'
 import ShopCartList from 'components/shop-cart-list/shop-cart-list'
 import ShopCartSticky from 'components/shop-cart-sticky/shop-cart-sticky'
+import Food from 'components/food/food'
 
 createAPI(Vue, HeaderDeatil)
 createAPI(Vue, ShopCartList) // 把ShopCartList注册变成一个API组件
 createAPI(Vue, ShopCartSticky)
+createAPI(Vue, Food)
