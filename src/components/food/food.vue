@@ -47,7 +47,7 @@
             >
             </rating-select>
             <div class="rating-wrapper">
-              <ul v-show="ratings && ratings.length">
+              <ul v-show="computedRatings && computedRatings.length">
                 <li
                   class="rating-item border-bottom-1px"
                   v-for="(rating, index) in computedRatings"
@@ -63,7 +63,7 @@
                   </p>
                 </li>
               </ul>
-              <div class="no-rating" v-show="!ratings || !ratings.length">暂无评价</div>
+              <div class="no-rating" v-show="!computedRatings || !computedRatings.length">暂无评价</div>
             </div>
           </div>
         </div>
