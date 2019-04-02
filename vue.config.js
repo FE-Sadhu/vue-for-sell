@@ -28,9 +28,10 @@ module.exports = {
   devServer: {
     before (app) { // app是一个express实例
       app.get('/api/seller', function (req, res) {
+        const id = req.query.id
         res.json({
           errno: 0,
-          data: seller
+          data: Object.assign({}, seller, { id })
         })
       })
       app.get('/api/goods', function (req, res) {

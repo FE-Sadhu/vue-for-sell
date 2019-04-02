@@ -14,12 +14,15 @@ import Goods from 'components/goods/goods'
 import Ratings from 'components/ratings/ratings'
 import Seller from 'components/seller/seller'
 import { getSeller } from 'api/index'
+import qs from 'query-string'
 
 export default {
   name: 'app',
   data() {
     return {
-      seller: {}
+      seller: {
+        id: qs.parse(location.search).id
+      }
     }
   },
   created() {
@@ -52,7 +55,9 @@ export default {
   },
   methods: {
     _getSeller() {
-      getSeller().then((seller) => {
+      getSeller({
+        id: this.seller.id // 把接口的参数传给服务端
+      }).then((seller) => {
         this.seller = seller
       })
     }

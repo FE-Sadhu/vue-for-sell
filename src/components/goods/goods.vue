@@ -143,7 +143,9 @@ export default {
     fetch() {
       if (!this.fetched) { // this.fetched标志位的意义是让goods组件请求过一次数据初始化后，之后不用再请求数据来初始化，也就是会让再次切换回goods页面时数据的操作和修改是不变的。效果是等于keep-alive
         this.fetched = true
-        getGoods().then((goods) => {
+        getGoods({
+          id: this.seller.id
+        }).then((goods) => {
           this.goods = goods
         })
       }
