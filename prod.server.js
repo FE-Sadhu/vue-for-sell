@@ -39,7 +39,7 @@ app.use(express.static('./dist')) // 代理dist目录下的静态资源 （app�
 
 const port = process.env.PORT || 8900 // 启用node.js没有传端口的话，默认就用8900这个端口
 
-module.exports = app.listen(port, function (err) { // 然后通过app.listen启动服务监听端口了
+module.exports = app.listen(port, '0.0.0.0', function (err) { // 然后通过app.listen启动服务监听端口了
   if (err) {
     console.log(err)
     return
