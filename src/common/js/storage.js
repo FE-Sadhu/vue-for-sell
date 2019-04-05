@@ -3,7 +3,7 @@ import storage from 'good-storage'
 
 const SELLER_KEY = '__seller__'
 
-export function saveToLocal(id, key, val) { // id区分商家 
+export function saveToLocal(id, key, val) { // id区分商家
   const seller = storage.get(SELLER_KEY, {}) // 从本地读取SELLER_KEY 读不到的话就赋一个空对象
   if (!seller[id]) {
     seller[id] = {}
