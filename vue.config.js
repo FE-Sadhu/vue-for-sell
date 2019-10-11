@@ -57,5 +57,6 @@ module.exports = {
 
     config.plugin('context')
       .use(webpack.ContextReplacementPlugin, [/moment[/\\]locale$/, /zh-cn/])
-  }
+  },
+  publicPath: '' // 使得打包后文件中 index.html 里的静态资源如 css 等静态资源是相对路径引入的，如果放在了 CDN 的话就配置 CDN 的路径。
 }
