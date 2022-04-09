@@ -12,7 +12,7 @@
     "axios": "^0.18.0",
     "cube-ui": "~1.12.1",
     "good-storage": "^1.1.0",
-    "moment": "^2.24.0",
+    "moment": "^2.29.2",
     "query-string": "^6.4.2",
     "vue": "^2.6.6"
   },
